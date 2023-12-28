@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="eu">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+            integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+            integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+</head>
+<body>
+<header class="row" style="height: 120px;">
+    <div class="col-sm-12 col-lg-12 ">
+        <nav class="navbar">
+            <div class="container " >
+                <a class="navbar-brand" href="/home">
+                    <img th:src="@{/img/icon/furama.png}" height="100" width="150"/>
+                </a>
+                <p></p>
+
+                <!--                <span th:if="${#authentication.principal.username == null}">-->
+                <!--                    <button data-bs-toggle="modal" data-bs-target="#login" type="button" id="loginPopUp"-->
+                <!--                            class="btn btn-outline-info">Login</button> </span>-->
+                <span sec:authorize="!isAuthenticated()">
+                    <button data-bs-toggle="modal" data-bs-target="#login" type="button" id="loginPopUp"
+                            class="btn btn-outline-info">Login</button> </span>
+                <span sec:authorize="isAuthenticated()">
+                    Hello <span id="nameUser" th:text="${#authentication.principal.username}"></span>
+                <span>
+                    <button type="button" onclick="logOut()"
+                            class="btn btn-outline-danger">Logout</button> </span>
+                </span>
+                <span >
+                    <a th:if="${role!='admin' || role==null}" th:href="@{create}">
+                        <button data-bs-toggle="modal" data-bs-target="#login" type="button" id="loginPopUp"
+                                class="btn btn-outline-info">Registration</button>
+                    </a>
+                    </span>
+            </div>
+        </nav>
+    </div>
+</header>
+<nav class="row">
+    <div class="col-sm-12 col-lg-12 ">
+        <nav class="navbar navbar-expand-lg navbar-light bg-success">
+            <div class="container-fluid">
+                <a class="navbar-brand ms-5 text-white" th:href="@{/home}">Home</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-5">
+                        <li class="nav-item ms-5 text-white">
+                            <a class="nav-link text-white" aria-current="page" th:href="@{/roomType/view}">Room Type</a>
+                        </li>
+                        <li class="nav-item ms-5 text-white">
+                            <a class="nav-link text-white" aria-current="page" th:href="@{/service}">Service</a>
+                        </li>
+                        <li  sec:authorize="hasAuthority('admin')" class="nav-item ms-5 text-white">
+                            <a class="nav-link active text-white" aria-current="page" th:href="@{/room}">Map room</a>
+                        </li>
+                        <li sec:authorize="hasAuthority('admin')" class="nav-item ms-5 text-white">
+                            <a class="nav-link active text-white" aria-current="page" th:href="@{/employee}">Employee</a>
+                        </li>
+                        <li sec:authorize="hasAuthority('admin')" class="nav-item ms-5 text-white">
+                            <a class="nav-link text-white" aria-current="page" th:href="@{/customer}">Customer</a>
+                        </li>
+
+                        <li sec:authorize="hasAuthority('admin')" class="nav-item ms-5 text-white">
+                            <a class="nav-link text-white" aria-current="page" th:href="@{/employee/MyAccount}">My Account</a>
+                        </li>
+                        <li sec:authorize="hasAuthority('user')" class="nav-item ms-5 text-white">
+                            <a class="nav-link text-white" aria-current="page" th:href="@{/customer/MyAccount}">My Account</a>
+                        </li>
+                        <li th:if="${#httpServletRequest.getSession().getAttribute('cart')!=null}" class="nav-item ms-5 text-white">
+                            <a class="nav-link active text-white" aria-current="page" th:href="@{/cart}">My Cart</a>
+                        </li>
+                    </ul>
+                    <!--                    <form class="d-flex mt-2" action="/employee" method="get">-->
+                    <!--                        <input class="form-control me-2" name="name_search" type="search"-->
+                    <!--                               placeholder="Search employee advisory" aria-label="Search">-->
+
+                    <!--                        <button class="btn btn-outline-success text-white" type="submit">Search</button>-->
+                    <!--                    </form>-->
+                    <form sec:authorize="hasAuthority('admin')" class="d-flex mt-2" action="/customer" method="get">
+                        <input class="form-control me-2" th:name="name_search" th:value="${name_search}"
+                               type="search"
+                               placeholder="Search customer" aria-label="Search">
+                        <button class="btn btn-outline-success text-white" type="submit">Search</button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+    </div>
+</nav>
+<section class="vh-100 bg-image"
+         style="background-image: url('https://mdbcdn.b-cdn.net/img/Photos/new-templates/search-box/img4.webp');">
+    <div class="mask d-flex align-items-center h-100 gradient-custom-3">
+        <div class="container h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-12 col-md-9 col-lg-7 col-xl-6">
+                    <div class="card" style="border-radius: 15px;">
+                        <div class="card-body p-5">
+                            <h2 class="text-uppercase text-center mb-5">Control</h2>
+                            <p style="color: red" th:utext="${account_balance}"></p>
+                            <form th:object="${booking}" method="post" th:action="@{/cart/update}">
+
+                                <div class="form-outline mb-4">
+                                    <input type="hidden" th:field="*{id}" name="id" id="form3Example1cg"
+                                           class="form-control form-control-lg" required/>
+                                </div>
+
+                                <div class="form-outline mb-4">
+                                    <input type="hidden" th:field="*{customer_id}" name="customer_id" id="form2Example7cg"
+                                           class="form-control form-control-lg" required/>
+                                </div>
+
+                                <div class="form-outline mb-4">
+                                    <input type="text" th:value="${name}" name="check_in" id="form2Example0cg"
+                                           class="form-control form-control-lg" disabled />
+                                    <label class="form-label" for="form2Example0cg">Name</label>
+                                </div>
+
+                                <div class="form-outline mb-4">
+                                    <input type="text" th:field="*{check_in}" name="check_in" id="form2Example3cg"
+                                           class="form-control form-control-lg" readonly />
+                                    <label class="form-label" for="form2Example3cg">Check in</label>
+                                </div>
+
+                                <div class="form-outline mb-4">
+                                    <input type="text" th:field="*{check_out}" name="check_out" id="form2Example4cg"
+                                           class="form-control form-control-lg" readonly />
+                                    <label class="form-label" for="form2Example4cg">Check out</label>
+                                </div>
+
+                                <div class="form-outline mb-4">
+                                    <input type="number" th:field="*{amount}" name="amount" id="form5Example6cg"
+                                           class="form-control form-control-lg" readonly />
+                                    <label class="form-label" for="form5Example6cg">Amount</label>
+                                </div>
+
+                                <div class="form-outline mb-4">
+                                    <p style="color: red" th:utext="${discount}"></p>
+                                    <input type="text" th:field="*{discount}" name="discount" id="form2Example8cg"
+                                           class="form-control form-control-lg" />
+                                    <label class="form-label" for="form2Example8cg">Discount</label>
+                                </div>
+
+
+                                <div class="form-outline mb-4">
+                                    <input type="text" th:field="*{description}" name="description" id="form2Example9cg"
+                                           class="form-control form-control-lg"/>
+                                    <label class="form-label" for="form2Example9cg">Description</label>
+                                </div>
+
+                                <div class="d-flex justify-content-center">
+                                    <button type="submit"
+                                            class="btn btn-success btn-block btn-lg gradient-custom-4 text-body">
+                                        Submit
+                                    </button>
+<!--                                    <button type="reset"-->
+<!--                                            class="btn btn-warning btn-block btn-lg gradient-custom-4 text-body">-->
+<!--                                        Reset-->
+<!--                                    </button>-->
+<!--                                    <a th:href="@{/employee}">-->
+<!--                                        <button type="button"-->
+<!--                                                class="btn btn-primary btn-block btn-lg gradient-custom-4 text-body">-->
+<!--                                            Back List-->
+<!--                                        </button>-->
+<!--                                    </a>-->
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

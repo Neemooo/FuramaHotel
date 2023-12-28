@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MyFurama</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+            integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+            crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="https://phuongviethcm.com/wp-content/uploads/2019/07/FURAMA.png">
+</head>
+<body>
+
+<header class="row" style="height: 120px;">
+    <div class="col-sm-12 col-lg-12 ">
+        <nav class="navbar">
+            <div class="col-sm-12 col-lg-12 ">
+                <nav class="navbar">
+                    <div class="container " >
+                        <a class="navbar-brand" href="/home">
+                            <img th:src="@{/img/icon/furama.png}" height="100" width="150"  alt=""/>
+                        </a>
+                        <p></p>
+
+                        <!--                <span th:if="${#authentication.principal.username == null}">-->
+                        <!--                    <button data-bs-toggle="modal" data-bs-target="#login" type="button" id="loginPopUp"-->
+                        <!--                            class="btn btn-outline-info">Login</button> </span>-->
+                        <span sec:authorize="!isAuthenticated()">
+                    <button data-bs-toggle="modal" data-bs-target="#login" type="button" id="loginPopUp"
+                            class="btn btn-outline-info">Login</button> </span>
+                        <span sec:authorize="isAuthenticated()">
+                    Hello <span id="nameUser" th:text="${#authentication.principal.username}"></span>
+                <span>
+                    <button type="button" onclick="logOut()"
+                            class="btn btn-outline-danger">Logout</button> </span>
+                </span>
+                        <span >
+                    <a th:if="${role!='admin' || role==null}" th:href="@{create}">
+                        <button data-bs-toggle="modal" data-bs-target="#login" type="button" id="loginPopUp"
+                                class="btn btn-outline-info">Registration</button>
+                    </a>
+                    </span>
+                    </div>
+                </nav>
+            </div>
+        </nav>
+    </div>
+</header>
+<nav class="navbar navbar-expand-lg navbar-light bg-success">
+    <div class="container-fluid">
+        <a class="navbar-brand ms-5 text-white" th:href="@{/home}">Home</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-5">
+                <li class="nav-item ms-5 text-white">
+                    <a class="nav-link text-white" aria-current="page" th:href="@{/roomType/view}">Room Type</a>
+                </li>
+                <li class="nav-item ms-5 ">
+                    <a class="nav-link text-white" aria-current="page" th:href="@{/service}">Service</a>
+                </li>
+                <li  sec:authorize="hasAuthority('admin')" class="nav-item">
+                    <a class="nav-link active text-white" aria-current="page" th:href="@{/room}">Map room</a>
+                </li>
+                <li sec:authorize="hasAuthority('admin')" class="nav-item">
+                    <a class="nav-link active text-white" aria-current="page" th:href="@{/employee}">Employee</a>
+                </li>
+                <li sec:authorize="hasAuthority('admin')" class="nav-item ms-5">
+                    <a class="nav-link text-white" aria-current="page" th:href="@{/customer}">Customer</a>
+                </li>
+
+                <li sec:authorize="hasAuthority('admin')" class="nav-item ms-5 text-white">
+                    <a class="nav-link text-white" aria-current="page" th:href="@{/employee/MyAccount}">My Account</a>
+                </li>
+                <li sec:authorize="hasAuthority('user')" class="nav-item ms-5 text-white">
+                    <a class="nav-link text-white" aria-current="page" th:href="@{/customer/MyAccount}">My Account</a>
+                </li>
+                <li th:if="${#httpServletRequest.getSession().getAttribute('cart')!=null}" class="nav-item">
+                    <a class="nav-link active text-white" aria-current="page" th:href="@{/cart}">My Cart</a>
+                </li>
+            </ul>
+            <!--                    <form class="d-flex mt-2" action="/employee" method="get">-->
+            <!--                        <input class="form-control me-2" name="name_search" type="search"-->
+            <!--                               placeholder="Search employee advisory" aria-label="Search">-->
+
+            <!--                        <button class="btn btn-outline-success text-white" type="submit">Search</button>-->
+            <!--                    </form>-->
+            <form sec:authorize="hasAuthority('admin')" class="d-flex mt-2" action="/customer" method="get">
+                <input class="form-control me-2" th:name="name_search" th:value="${name_search}"
+                       type="search"
+                       placeholder="Search customer" aria-label="Search">
+                <button class="btn btn-outline-success text-white" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+</nav>
+<!--<nav class="navbar navbar-light" style="background-color: #e3f2fd " >-->
+<!--    <form class="container" th:object="${form}" method="post" th:action="@{/search}">-->
+<!--        <p style="color:red;" th:utext="${totalPeopleLimit}"></p>-->
+<!--        <div class="form-outline mb-4">-->
+<!--            <input type="number" th:field="*{total_adults}" id="form2Example1cg"-->
+<!--                   class="form-control form-control-lg" th:min="1" th:max="4" th:default="1"/>-->
+<!--            <p style="color:red;" th:errors="*{total_adults}"></p>-->
+<!--            <label class="form-label" for="form2Example3cg">Adults</label>-->
+<!--        </div>-->
+<!--        <div class="form-outline mb-4">-->
+<!--            <input type="number" th:field="*{total_children}" id="form2Example2cg"-->
+<!--                   class="form-control form-control-lg" th:max="6"  th:min="0" th:default="0"/>-->
+<!--            <p style="color:red;" th:errors="*{total_children}"></p>-->
+<!--            <label class="form-label" for="form2Example3cg">Children</label>-->
+<!--        </div>-->
+<!--        <div class="form-outline mb-4">-->
+<!--            <input type="date" th:field="*{checkin}" id="form2Example3cg"-->
+<!--                   class="form-control form-control-lg"  />-->
+<!--            <p style="color:red;" th:errors="*{checkin}"></p>-->
+<!--            <label class="form-label" for="form2Example3cg">CheckIn</label>-->
+<!--        </div>-->
+<!--        <div class="form-outline mb-4">-->
+<!--            <input type="date" th:field="*{checkout}" id="form2Example4cg"-->
+<!--                   class="form-control form-control-lg"  />-->
+<!--            <p style="color:red;" th:errors="*{checkout}"></p>-->
+<!--            <label class="form-label" for="form2Example3cg">CheckOut</label>-->
+<!--        </div>-->
+<!--        <button type="submit" class="btn btn-success btn-block btn-lg gradient-custom-4 text-body">Search</button>-->
+<!--    </form>-->
+<!--</nav>-->
+<h4 style="color: red" th:utext="${message}"></h4>
+<h3>My information:</h3>
+<table class="table table-bordered" >
+    <tr>
+        <th>Name</th>
+        <th>Type Customer</th>
+        <th>Birthday</th>
+        <th>Id Card</th>
+        <th>Gender</th>
+        <th>Phone</th>
+        <th>Email</th>
+        <th>Address</th>
+        <th>Booking</th>
+        <th>Action</th>
+    </tr>
+    <tr>
+        <td th:utext="${customer.name}"></td>
+        <td >
+            <span th:each="type : ${customerType}" th:if="${customer.customer_type == type.id}" th:utext="${type.name}"></span>
+        </td>
+        <td th:utext="${customer.birthday}"></td>
+        <td th:utext="${customer.id_card}"></td>
+        <td th:utext="${customer.gender} ? 'Male' : 'Female'"></td>
+        <td th:utext="${customer.phone}"></td>
+        <td th:utext="${customer.email}"></td>
+        <td th:utext="${customer.address}"></td>
+        <td>
+            <a th:href="@{/booking/{id}(id= ${customer.id})}" style="text-decoration: none">
+                <button type="button" class="btn btn-outline-primary">
+                    <i class="fa-solid fa-address-book"></i>
+                </button>
+            </a>
+        </td>
+        <td>
+            <a th:href="@{/customer/edit/{id}(id= ${customer.id})}" style="text-decoration: none">
+                <button type="button" class="btn btn-outline-primary">
+                    <i class="fa-solid fa-highlighter"></i>
+                </button>
+            </a>
+        </td>
+    </tr>
+</table>
+    <footer
+            class="text-center text-lg-start text-white"
+            style="background-color: #1c2331">
+        <section
+                class="d-flex justify-content-between p-4"
+                style="background-color: #6351ce">
+            <div class="me-5">
+                <span>Get connected with us on social networks:</span>
+            </div>
+            <div>
+                <a href="https://www.facebook.com/furamaresort/" class="text-white me-4" style="text-decoration: none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                         class="bi bi-facebook" viewBox="0 0 16 16">
+                        <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z"/>
+                    </svg>
+                </a>
+                <a href="https://www.instagram.com/furama_resort_and_villas/" class="text-white me-4"
+                   style="text-decoration: none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                         class="bi bi-instagram" viewBox="0 0 16 16">
+                        <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.478 2.478 0 0 1-.92-.598 2.48 2.48 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233 0-2.136.008-2.388.046-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045v.002zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92zm-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334z"/>
+                    </svg>
+                </a>
+                <a href="https://www.youtube.com/user/furamaresortvietnam/featured" class="text-white me-4"
+                   style="text-decoration: none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                         class="bi bi-youtube" viewBox="0 0 16 16">
+                        <path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.007 2.007 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.007 2.007 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31.4 31.4 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.007 2.007 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A99.788 99.788 0 0 1 7.858 2h.193zM6.4 5.209v4.818l4.157-2.408L6.4 5.209z"/>
+                    </svg>
+                </a>
+                <a href="https://www.linkedin.com/company/furama-hotels-international/" class="text-white me-4"
+                   style="text-decoration: none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                         class="bi bi-linkedin" viewBox="0 0 16 16">
+                        <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"/>
+                    </svg>
+                </a>
+            </div>
+        </section>
+        <section class="">
+            <div class="container text-center text-md-start mt-5">
+                <div class="row mt-3">
+                    <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
+                        <h6 class="text-uppercase fw-bold">FURAMA Danang</h6>
+                        <hr
+                                class="mb-4 mt-0 d-inline-block mx-auto"
+                                style="width: 60px; background-color: #7c4dff; height: 2px"
+                        />
+                        <p>FURAMA DANANG
+
+                            Furama Resort Đà Nẵng được đánh giá là một trong những biểu tượng của du lịch Việt.
+                            Nhiều năm liền Furama Resort giữ vững danh hiệu là Khu nghỉ dưỡng số 1 hàng đầu Việt Nam và nằm trong Top các khu nghỉ dưỡng tốt nhất trong khu vực Châu Á.
+                            Nằm giữa những rặng dừa xanh mát với vẻ đẹp đậm chất Việt.
+                            Xung quanh là biển xanh, cát trắng giúp du khách có thời gian thư giãn, đắm mình cùng thiên nhiên.
+                            Furama Resort được xây dựng tại vị trí cửa ngõ dẫn tới 3 Di sản văn hóa thế giới: Hội An (20 phút), Huế (2h), Mỹ Sơn (90 phút).
+                            Khu nghỉ dưỡng có tổng cộng 196 phòng hạng sang, 70 căn biệt thự 2- 4 phòng ngủ bố trí hồ bơi riêng hiện đại thể hiện đẳng cấp với phong cách thiết kế thuần Việt kết hợp với không gian kiến trúc thuộc địa sang trọng của Pháp.
+                            Furama Resort Đà Nẵng nổi tiếng là khu nghỉ dưỡng ẩm thực lớn nhất tại Việt nam.
+                            Ẩm thực là điểm nhấn hoàn hảo giúp du khách có cơ hội trải nghiệm các món ăn Việt, châu Á, Ý, châu Âu với các món bít tết hảo hạng.
+                        </p>
+                    </div>
+                    <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
+                        <h6 class="text-uppercase fw-bold">Địa điểm du lịch</h6>
+                        <hr
+                                class="mb-4 mt-0 d-inline-block mx-auto"
+                                style="width: 60px; background-color: #7c4dff; height: 2px"
+                        />
+                        <p>
+                            <a href="#!" class="text-white text-decoration-none">1.Cố đô Huế</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-white text-decoration-none">2.Phố cổ Hội An</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-white text-decoration-none">3.Bana Hills</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-white text-decoration-none">4.Cầu Rồng</a>
+                        </p>
+                    </div>
+                    <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
+                        <h6 class="text-uppercase fw-bold">Thông tin cần biết</h6>
+                        <hr
+                                class="mb-4 mt-0 d-inline-block mx-auto"
+                                style="width: 60px; background-color: #7c4dff; height: 2px"
+                        />
+                        <p>
+                            <a href="#!" class="text-white text-decoration-none">Điều kiện và điều khoản</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-white text-decoration-none">Quy chế hoạt động</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-white text-decoration-none">Câu hỏi thường gặp</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-white text-decoration-none">Trợ giúp</a>
+                        </p>
+                    </div>
+
+
+                    <!-- Grid column -->
+                    <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
+                        <!-- Links -->
+                        <h6 class="text-uppercase fw-bold">Contact</h6>
+                        <hr
+                                class="mb-4 mt-0 d-inline-block mx-auto"
+                                style="width: 60px; background-color: #7c4dff; height: 2px"
+                        />
+                        <p><i class="fas fa-home mr-3"></i>103 - 105 Vo Nguyen Giap Street, Khue My Ward, Ngu Hanh Son District, Danang City, Vietnam</p>
+                        <p><i class="fas fa-envelope mr-3"></i>Email:  reservation@furamavietnam.com </p>
+                        <p><i class="fas fa-phone mr-3"></i>Số điện thoại: 84-236-3847 333/888 </p>
+                        <p><i class="fas fa-print mr-3"></i>Fax:84-236-3847 666</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </footer>
+
+</body>
+<div class="modal fade" id="login" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Login User Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <table class="table table-striped">
+                <tr>
+                    <td>User Name Employee</td>
+                    <td><input id="username" type="text"></td>
+                </tr>
+                <tr>
+                    <td>Password</td>
+                    <td><input id="password" type="password"></td>
+                </tr>
+            </table>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-outline-success" onclick="login()" data-bs-dismiss="modal">Login
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/bootstrap.min.js "></script>
+<script>
+    const baseUrl = window.location.origin;
+
+    function logOut() {
+        console.log(`${baseUrl}/logout`);
+        fetch(`${baseUrl}/logout`, {
+            method: "POST",
+        })
+        window.location = "/";
+    }
+
+    function login() {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        if (username === "" || password === "") {
+            alert("input something!!!");
+            return;
+        }
+
+        const dataObj = {
+            username: username,
+            password: password,
+        }
+        console.log(JSON.stringify(dataObj));
+        fetch(`${baseUrl}/login`, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            type: "POST",
+            body: JSON.stringify(dataObj),
+        })
+            .then(request => request.json())
+            .then(data => {
+                window.location = "/";
+                if (data !== 200) throw new Error(JSON.stringify(data))
+            })
+            .catch(error => {
+                window.location = "/";
+                console.log((error))
+            })
+
+    }
+</script>
+</html>
